@@ -1,4 +1,6 @@
 import streamlit as st
+from github import Github
+from io import StringIO
 from utils import first_function
 from config import DATA_URL
 import pandas as pd
@@ -8,15 +10,21 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import joblib
 
+
 st.title("Worldwide Analysis of Quality of Life and Economic Factors")
 
-st.subheader("This app enables you to explore the relationships between poverty, life expectancy, and GDP across various countries and years. Use the panels to select options and interact with the data.", width="stretch")
+st.subheader(
+    "This app enables you to explore the relationships between poverty, life expectancy, and GDP across various countries and years. Use the panels to select options and interact with the data.",
+    width="stretch",
+)
 
 df = pd.read_csv(DATA_URL)
-min_year = int(df['year'].min())
-max_year = int(df['year'].max())
+min_year = int(df["year"].min())
+max_year = int(df["year"].max())
 
-tab1, tab2, tab3 = st.tabs(["CatGlobal Overview", "Country Deep Dive", "Data Explorer"], width="stretch")
+tab1, tab2, tab3 = st.tabs(
+    ["CatGlobal Overview", "Country Deep Dive", "Data Explorer"], width="stretch"
+)
 
 
 with tab1:
@@ -27,39 +35,36 @@ with tab1:
         min_value=min_year,
         max_value=max_year,
         value=min_year,
-        step=1)
+        step=1,
+    )
 
-    df_year = df[df['year'] == selected_year]
+    df_year = df[df["year"] == selected_year]
 
-    mean_life_exp = df_year['Healthy Life Expectancy (IHME)'].mean()
-    median_gdp = df_year['GDP per capita'].median()
-    mean_pov_rate = df_year['headcount_upper_mid_income_povline'].mean()
-    num_countries = df_year['country'].nunique()
+    mean_life_exp = df_year["Healthy Life Expectancy (IHME)"].mean()
+    median_gdp = df_year["GDP per capita"].median()
+    mean_pov_rate = df_year["headcount_upper_mid_income_povline"].mean()
+    num_countries = df_year["country"].nunique()
 
     col1, col2, col3, col4 = st.columns(4, width="stretch")
 
     col1.metric(
-        label="📈 Mean Life Expectancy",
-        value=f"{mean_life_exp:.2f}",
-        delta=None
+        label="📈 Mean Life Expectancy", value=f"{mean_life_exp:.2f}", delta=None
     )
-    
+
     col2.metric(
-        label="💰 Median GDP per Capita",
-        value=f"{median_gdp:,.0f}",
-        delta=None
+        label="💰 Median GDP per Capita", value=f"{median_gdp:,.0f}", delta=None
     )
-    
+
     col3.metric(
         label="📉 Mean Upper-Mid Income Poverty Ratio",
         value=f"{mean_pov_rate:.2f}",
-        delta=None
+        delta=None,
     )
 
     col4.metric(
         label="🌍 Number of countries with data for the selected year",
         value=num_countries,
-        delta=None
+        delta=None,
     )
 
     st.dataframe(df_year)
@@ -69,116 +74,133 @@ with tab1:
 
 with tab2:
     st.header("Country Deep Dive")
-    countries = sorted(df['country'].unique())
-    selected_countries = st.multiselect("Pick a country:", countries, default=countries[:3])
+    countries = sorted(df["country"].unique())
+    selected_countries = st.multiselect(
+        "Pick a country:", countries, default=countries[:3]
+    )
 
     # Фільтруємо датасет за вибраними країнами
-    filtered_df = df[df['country'].isin(selected_countries)]
+    filtered_df = df[df["country"].isin(selected_countries)]
 
     if filtered_df.empty:
         st.warning("Please select at least one country to visualize data.")
     else:
         fig = go.Figure()
         for country in selected_countries:
-            country_df = filtered_df[filtered_df['country'] == country]
-            fig.add_trace(go.Scatter(
-                x=country_df['year'],
-                y=country_df['Healthy Life Expectancy (IHME)'],
-                mode='lines+markers',
-                name=f"Life Expectancy - {country}",
-                yaxis="y1"
-            ))
+            country_df = filtered_df[filtered_df["country"] == country]
+            fig.add_trace(
+                go.Scatter(
+                    x=country_df["year"],
+                    y=country_df["Healthy Life Expectancy (IHME)"],
+                    mode="lines+markers",
+                    name=f"Life Expectancy - {country}",
+                    yaxis="y1",
+                )
+            )
 
- 
         for country in selected_countries:
-            country_df = filtered_df[filtered_df['country'] == country]
-            fig.add_trace(go.Scatter(
-                x=country_df['year'],
-                y=country_df['GDP per capita'],
-                mode='lines+markers',
-                name=f"GDP per Capita - {country}",
-                yaxis="y2",
-                line=dict(dash='dot')  # Для візуального розрізнення ліній
-            ))
+            country_df = filtered_df[filtered_df["country"] == country]
+            fig.add_trace(
+                go.Scatter(
+                    x=country_df["year"],
+                    y=country_df["GDP per capita"],
+                    mode="lines+markers",
+                    name=f"GDP per Capita - {country}",
+                    yaxis="y2",
+                    line=dict(dash="dot"),  # Для візуального розрізнення ліній
+                )
+            )
 
         # Налаштовуємо осі
         fig.update_layout(
             title="Life Expectancy and GDP per Capita Over Years",
             xaxis=dict(title="Year"),
             yaxis=dict(
-                title="Life Expectancy",
-                side="left",
-                showgrid=False,
-                zeroline=False
+                title="Life Expectancy", side="left", showgrid=False, zeroline=False
             ),
             yaxis2=dict(
                 title="GDP per Capita",
                 side="right",
                 overlaying="y",
                 showgrid=False,
-                zeroline=False
+                zeroline=False,
             ),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            legend=dict(
+                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
+            ),
             height=600,
-            template="plotly_white"
+            template="plotly_white",
         )
 
         st.plotly_chart(fig, use_container_width=True)
-    
+
 with tab3:
     st.header("Data Explorer")
 
-    countries = df['country'].unique()
+    countries = df["country"].unique()
 
     selected_years = st.slider(
-    "Select the year range:",
-    min_value=min_year,
-    max_value=max_year,
-    value=(min_year, max_year)
+        "Select the year range:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
     )
 
     selected_countries = st.multiselect(
         "Countries:",
         options=sorted(countries),
-        default=sorted(countries)[-5:]  # Default to the last 5 countries
+        default=sorted(countries)[-5:],  # Default to the last 5 countries
     )
     filtered_df = df[
-        (df['country'].isin(selected_countries)) &
-        (df['year'] >= selected_years[0]) &
-        (df['year'] <= selected_years[1])
+        (df["country"].isin(selected_countries))
+        & (df["year"] >= selected_years[0])
+        & (df["year"] <= selected_years[1])
     ]
 
     st.dataframe(filtered_df)
 
-    tab3.line_chart(filtered_df[['year', 'headcount_ratio_international_povline']].set_index('year'))
+    tab3.line_chart(
+        filtered_df[["year", "headcount_ratio_international_povline"]].set_index("year")
+    )
 
     st.download_button(
         label="Save as CSV",
         data=filtered_df.to_csv(index=False).encode("utf-8"),
         file_name="filtered_global_development_data.csv",
-        mime="text/csv"
+        mime="text/csv",
     )
 
 st.balloons()
 
 # Model training and prediction
-model = joblib.load('rf_model.pkl')
+model = joblib.load("rf_model.pkl")
 
-gdp_min, gdp_max = float(df['GDP per capita'].min()), float(df['GDP per capita'].max())
-pov_min, pov_max = float(df['headcount_upper_mid_income_povline'].min()), float(df['headcount_upper_mid_income_povline'].max())
-year_min, year_max = int(df['year'].min()), int(df['year'].max())
+gdp_min, gdp_max = float(df["GDP per capita"].min()), float(df["GDP per capita"].max())
+pov_min, pov_max = float(df["headcount_upper_mid_income_povline"].min()), float(
+    df["headcount_upper_mid_income_povline"].max()
+)
+year_min, year_max = int(df["year"].min()), int(df["year"].max())
 
-gdp_input = st.number_input("GDP per capita", min_value=gdp_min, max_value=gdp_max, value=gdp_min)
-pov_input = st.number_input("Headcount Ratio Upper Mid Income Povline", min_value=pov_min, max_value=pov_max, value=pov_min)
+gdp_input = st.number_input(
+    "GDP per capita", min_value=gdp_min, max_value=gdp_max, value=gdp_min
+)
+pov_input = st.number_input(
+    "Headcount Ratio Upper Mid Income Povline",
+    min_value=pov_min,
+    max_value=pov_max,
+    value=pov_min,
+)
 year_input = st.slider("Year", min_value=year_min, max_value=year_max, value=year_min)
 
 # Prediction btn
 if st.button("Predict Life Expectancy"):
-    input_data = pd.DataFrame({
-        'GDP per capita': [gdp_input],
-        'headcount_upper_mid_income_povline': [pov_input],
-        'year': [year_input]
-    })
+    input_data = pd.DataFrame(
+        {
+            "GDP per capita": [gdp_input],
+            "headcount_upper_mid_income_povline": [pov_input],
+            "year": [year_input],
+        }
+    )
     prediction = model.predict(input_data)[0]
     st.success(f"Predicted Life Expectancy): {prediction:.2f}")
 
@@ -189,9 +211,8 @@ names = list(feature_importances.keys())
 values = list(feature_importances.values())
 
 fig, ax = plt.subplots()
-ax.barh(names, values, color='skyblue')
-ax.set_xlabel('Importance')
-ax.set_title('Feature Importance in RandomForestRegressor')
+ax.barh(names, values, color="skyblue")
+ax.set_xlabel("Importance")
+ax.set_title("Feature Importance in RandomForestRegressor")
 
 st.pyplot(fig)
-
