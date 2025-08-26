@@ -33,4 +33,3 @@ github-*.zip
 # Ignore your token file
 my_token
 my_token.json
-/docs/source
