@@ -10,8 +10,22 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import joblib
 
+st.markdown(
+    "<h1 style='text-align: center;'>Worldwide Analysis of Quality of Life and Economic Factors</h1>",
+    unsafe_allow_html=True,
+)
+st.set_page_config(
+    page_title="Cool App by nzelinska",
+    page_icon="👾",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        "Get Help": "https://www.extremelycoolapp.com/help",
+        "Report a bug": "mailto:zelinska.nataliia.job@gmail.com",
+        "About": "# This is a header. This is an *extremely* cool app!",
+    },
+)
 
-st.title("Worldwide Analysis of Quality of Life and Economic Factors")
 
 st.subheader(
     "This app enables you to explore the relationships between poverty, life expectancy, and GDP across various countries and years. Use the panels to select options and interact with the data.",
@@ -157,20 +171,19 @@ with tab3:
         & (df["year"] <= selected_years[1])
     ]
 
-    st.dataframe(filtered_df)
+    # df = st.dataframe(filtered_df)
+    edited_df = st.data_editor(filtered_df)
 
-    tab3.line_chart(
-        filtered_df[["year", "headcount_ratio_international_povline"]].set_index("year")
-    )
+    with st.form("my_form"):
+        st.write("Inside the form")
+        slider_val = st.slider("Form slider")
+        checkbox_val = st.checkbox("Form checkbox")
+        # Every form must have a submit button.
+        submitted = st.form_submit_button("Submit")
+        if submitted:
+            st.write("slider", slider_val, "checkbox", checkbox_val)
+    st.write("Outside the form")
 
-    st.download_button(
-        label="Save as CSV",
-        data=filtered_df.to_csv(index=False).encode("utf-8"),
-        file_name="filtered_global_development_data.csv",
-        mime="text/csv",
-    )
-
-st.balloons()
 
 # Model training and prediction
 model = joblib.load("rf_model.pkl")
