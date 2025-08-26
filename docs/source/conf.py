@@ -9,7 +9,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../../Streamlit"))
+sys.path.insert(0, os.path.abspath("../../practical"))
 
 project = "Streamlit"
 copyright = "2025, NZelinska"
