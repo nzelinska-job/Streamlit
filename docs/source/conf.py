@@ -20,7 +20,9 @@ release = "1.0"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx.ext.autodoc",  # <-- 2. ADD THIS
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",  # Optional: Adds links to source code
+    "sphinx.ext.napoleon",  # Optional: Supports Google/NumPy style docstrings
 ]
 
 templates_path = ["_templates"]

@@ -10,11 +10,10 @@ Streamlit documentation
    :maxdepth: 2
    :caption: Contents:
 
-   code  <-- ADD THIS LINE
+   # Other pages like usage.rst or introduction.rst can go here
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference:
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   api/modules
