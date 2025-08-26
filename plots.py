@@ -3,20 +3,21 @@ import plotly.express as px
 
 def create_scatterplot(df):
     """
-    Creates a scatterplot for the filtered data frame.
+    Creates a scatterplot for the given DataFrame.
 
-    Input:
-    df : pandas.DataFrame - 'gdp_per_capita', 'life_expectancy', 'country'
+    Args:
+        df (pandas.DataFrame): Data frame containing columns 'GDP per capita', 'Healthy Life Expectancy (IHME)', and 'country'.
 
-    Return:
-    fig : plotly.graph_objects.Figure - Scatterplot of life expectancy vs GDP per capita
+    Returns:
+        plotly.graph_objects.Figure: Scatterplot figure object.
+
+    Raises:
+        ValueError: If required columns are missing from the DataFrame.
     """
-
     required_columns = ["GDP per capita", "Healthy Life Expectancy (IHME)", "country"]
     for col in required_columns:
         if col not in df.columns:
-            raise ValueError(f"DataFrame should contain '{col}'")
-
+            raise ValueError(f"DataFrame must contain '{col}' column")
     fig = px.scatter(
         df,
         x=required_columns[0],  # 'GDP per capita'

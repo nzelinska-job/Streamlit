@@ -19,14 +19,30 @@ def load_data():
 
 
 def train_and_save_model():
+    """
+    Loads data, trains a RandomForestRegressor model, and saves it.
+
+    Performs:
+        - Loading data from a CSV file.
+        - Training the model.
+        - Saving the trained model to 'rf_model.pkl'.
+
+    Returns:
+        RandomForestRegressor: The trained model.
+
+    Raises:
+        ValueError: If the data is invalid or insufficient.
+    """
     df = load_data()
     X = df[["GDP per capita", "headcount_upper_mid_income_povline", "year"]]
     y = df["Healthy Life Expectancy (IHME)"]
 
     model = RandomForestRegressor(random_state=42, n_estimators=100)
     model.fit(X, y)
+
     joblib.dump(model, "rf_model.pkl")
-    print("Модель збережена у rf_model.pkl")
+    print("Model saved as rf_model.pkl")
+
     return model
 
 
